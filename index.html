@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kyle Ch 24/25/26 — NCLEX Study Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Fraunces:ital,wght@0,600;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F1117;--card:#1A1D27;--card-hover:#222632;--border:#2A2E3A;--accent:#6C9CFF;--accent-glow:rgba(108,156,255,.15);--accent-soft:#4A7AE0;--correct:#34D399;--correct-bg:rgba(52,211,153,.08);--correct-border:rgba(52,211,153,.3);--incorrect:#F87171;--incorrect-bg:rgba(248,113,113,.08);--incorrect-border:rgba(248,113,113,.3);--text:#E8EAF0;--text-dim:#8B90A0;--text-muted:#5A5F72;--sata:#C084FC;--sata-bg:rgba(192,132,252,.08);--case:#FBBF24;--case-bg:rgba(251,191,36,.08);--ngn:#FB923C;--ngn-bg:rgba(251,146,60,.08);--flag:#F59E0B;--ch24:#F472B6;--ch25:#34D399;--ch26:#60A5FA;--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;overflow-x:hidden}
+.app{max-width:840px;margin:0 auto;padding:24px 20px calc(80px + var(--safe-bottom))}
+.header{text-align:center;padding:36px 0 28px;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:2px;background:var(--accent);border-radius:2px}
+.header h1{font-family:'Fraunces',serif;font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2}
+.header .source{color:var(--text-dim);font-size:13px;margin-bottom:4px}
+.header .source-detail{color:var(--text-muted);font-size:11.5px;font-style:italic}
+
+.start-screen{animation:su .4s ease}
+.mode-section{margin-bottom:28px}
+.mode-section h2{font-family:'Fraunces',serif;font-size:18px;color:var(--text);margin-bottom:8px;font-weight:700}
+.mode-section .sub{font-size:12.5px;color:var(--text-dim);margin-bottom:14px}
+
+/* Chapter cards */
+.chapter-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+.chapter-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .15s ease;display:flex;align-items:center;gap:14px;min-height:72px;position:relative;overflow:hidden}
+.chapter-card:active{transform:scale(.98)}
+@media(hover:hover){.chapter-card:hover{background:var(--card-hover);border-color:var(--accent)}}
+.chapter-card.selected{background:var(--accent-glow);border-color:var(--accent)}
+.chapter-card .accent-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.chapter-checkbox{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.chapter-card.selected .chapter-checkbox{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.chapter-info{flex:1;min-width:0}
+.chapter-num{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:2px}
+.chapter-title{font-family:'Fraunces',serif;font-size:15.5px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.chapter-meta{font-size:11.5px;color:var(--text-muted)}
+
+/* Mode buttons */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.mode-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s ease;text-align:left;min-height:88px;display:flex;flex-direction:column;gap:4px}
+.mode-card:active{transform:scale(.98)}
+@media(hover:hover){.mode-card:hover{border-color:var(--accent);background:var(--card-hover)}}
+.mode-card.selected{background:var(--accent-glow);border-color:var(--accent)}
+.mode-card-title{font-family:'Fraunces',serif;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.mode-card-icon{font-size:14px}
+.mode-card-desc{font-size:11.5px;color:var(--text-dim);line-height:1.45}
+
+/* Quick actions */
+.topic-actions{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.btn-text{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:36px}
+.btn-text:active{transform:scale(.96)}
+@media(hover:hover){.btn-text:hover{border-color:var(--accent);color:var(--accent)}}
+
+/* Start bar */
+.start-bar{background:rgba(26,29,39,.95);border:1px solid var(--border);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;bottom:calc(16px + var(--safe-bottom));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:10}
+.start-info{font-size:13px;color:var(--text-dim);flex:1;min-width:140px}
+.start-info strong{color:var(--text);font-weight:700}
+.btn-start{background:var(--accent);color:var(--bg);border:none;padding:13px 24px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;white-space:nowrap}
+.btn-start:active{transform:scale(.96)}
+.btn-start:disabled{opacity:.4;cursor:not-allowed}
+
+/* Quiz UI - shared with exam sim */
+.quiz-top{display:flex;align-items:center;gap:12px;margin:20px 0 16px;flex-wrap:wrap}
+.timer{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.timer.warn{border-color:var(--flag);color:var(--flag)}
+.timer.crit{border-color:var(--incorrect);color:var(--incorrect);animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.pbc{flex:1;display:flex;align-items:center;gap:10px;min-width:200px}
+.pt{flex:1;height:5px;background:var(--border);border-radius:6px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,var(--accent),#A78BFA);border-radius:6px;transition:width .5s ease}
+.ptx{font-size:12.5px;color:var(--text-dim);font-weight:600;white-space:nowrap}
+.btn-quit{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:30px}
+.btn-quit:active{transform:scale(.95)}
+
+.sb{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.sp{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600}
+.sp.cp{background:var(--correct-bg);color:var(--correct);border:1px solid var(--correct-border)}
+.sp.ip{background:var(--incorrect-bg);color:var(--incorrect);border:1px solid var(--incorrect-border)}
+.sp.rp{background:var(--accent-glow);color:var(--accent);border:1px solid rgba(108,156,255,.2)}
+.sp.fp{background:rgba(245,158,11,.08);color:var(--flag);border:1px solid rgba(245,158,11,.25)}
+
+.qc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;animation:su .35s ease}
+@keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.qm{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.badge-sata{background:var(--sata-bg);color:var(--sata);border:1px solid rgba(192,132,252,.25)}
+.badge-case{background:var(--case-bg);color:var(--case);border:1px solid rgba(251,191,36,.25)}
+.badge-ngn{background:var(--ngn-bg);color:var(--ngn);border:1px solid rgba(251,146,60,.25)}
+.badge-hard{background:rgba(248,113,113,.08);color:var(--incorrect);border:1px solid rgba(248,113,113,.2)}
+.bt{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:6px;border:1px solid;white-space:nowrap}
+.btn-flag{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;min-height:28px}
+.btn-flag.flagged{background:rgba(245,158,11,.1);border-color:var(--flag);color:var(--flag)}
+.btn-flag:active{transform:scale(.95)}
+
+.csb{background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.7}
+.csb .cl{font-weight:700;color:var(--case);font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.qn{font-family:'Fraunces',serif;font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.qt{font-size:15px;font-weight:500;line-height:1.7;margin-bottom:4px}
+.si{font-size:12px;color:var(--sata);font-weight:600;margin-bottom:16px}
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.ob{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:11px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:14px;line-height:1.6;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s ease;width:100%;min-height:52px}
+.ob:active:not(.dis){transform:scale(.99)}
+@media(hover:hover){.ob:hover:not(.dis){background:var(--accent-glow);border-color:var(--accent)}}
+.ob .lt{min-width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;border:1.5px solid var(--border);flex-shrink:0;margin-top:1px}
+.ob.sel{background:var(--accent-glow);border-color:var(--accent)}
+.ob.sel .lt{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.ob.ca{background:var(--correct-bg);border-color:var(--correct-border)}
+.ob.ca .lt{background:var(--correct);color:var(--bg);border-color:var(--correct)}
+.ob.ia{background:var(--incorrect-bg);border-color:var(--incorrect-border)}
+.ob.ia .lt{background:var(--incorrect);color:var(--bg);border-color:var(--incorrect)}
+.ob.dis{cursor:default;opacity:.85}
+.ob.dis:active{transform:none}
+
+.ar{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.bs,.bn{padding:13px 24px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;min-height:46px}
+.bs:active:not(:disabled),.bn:active{transform:scale(.97)}
+.bs{background:var(--accent);color:var(--bg);flex:1}
+.bs:disabled{opacity:.4;cursor:not-allowed}
+.bn{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-prev{background:transparent;color:var(--text-dim);border:1px solid var(--border);padding:13px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:46px}
+.btn-prev:disabled{opacity:.3;cursor:not-allowed}
+.btn-prev:active:not(:disabled){transform:scale(.97)}
+
+.rb{margin-top:16px;padding:16px;border-radius:12px;border:1px solid var(--border);background:rgba(108,156,255,.04);animation:su .3s ease}
+.rb h4{font-family:'Fraunces',serif;font-size:14px;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rb .src-tag{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;background:var(--card);padding:3px 8px;border-radius:5px;border:1px solid var(--border)}
+.rb p{font-size:13.5px;line-height:1.7;color:var(--text-dim)}
+
+/* Navigator */
+.nav-toggle{position:fixed;bottom:calc(20px + var(--safe-bottom));right:20px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--bg);border:none;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(108,156,255,.4);z-index:50;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99;animation:fadeIn .2s ease;display:none}
+.nav-overlay.show{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.nav-panel{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px 18px calc(24px + var(--safe-bottom));z-index:100;max-height:80vh;overflow-y:auto;animation:slideUp .25s ease;display:none}
+.nav-panel.show{display:block}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.nav-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.nav-header h3{font-family:'Fraunces',serif;font-size:17px}
+.nav-close{background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;padding:4px 8px}
+.nav-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:11px;color:var(--text-dim)}
+.nav-legend-item{display:flex;align-items:center;gap:4px}
+.nav-legend-box{width:12px;height:12px;border-radius:3px}
+.nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}
+.nav-cell{aspect-ratio:1;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;position:relative}
+.nav-cell.answered{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+.nav-cell.flagged{border-color:var(--flag)}
+.nav-cell.flagged::after{content:'';position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--flag)}
+.nav-cell.current{box-shadow:0 0 0 2px var(--accent);background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.nav-cell:active{transform:scale(.92)}
+.nav-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap}
+.btn-submit-exam{flex:1;background:var(--correct);color:var(--bg);border:none;padding:12px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;min-height:42px}
+
+/* Final */
+.fs{text-align:center;padding:40px 20px;animation:su .5s ease}
+.fs h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:6px}
+.fsc{font-size:56px;font-weight:800;font-family:'Fraunces',serif;background:linear-gradient(135deg,var(--accent),#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:14px 0;line-height:1}
+.fs p{color:var(--text-dim);font-size:14px;margin-bottom:20px;padding:0 8px}
+.fs-stats{display:flex;justify-content:center;gap:20px;margin:18px 0;flex-wrap:wrap}
+.fs-stat{text-align:center}
+.fs-stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text)}
+.fs-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px}
+.fs-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.br{padding:13px 24px;border-radius:10px;background:var(--accent);color:var(--bg);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;min-height:46px}
+.br:active{transform:scale(.97)}
+.br-sec{padding:13px 24px;border-radius:10px;background:transparent;color:var(--text);border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;min-height:46px}
+.br-sec:active{transform:scale(.97)}
+.tbd{margin-top:24px;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.tbd h3{font-family:'Fraunces',serif;font-size:16px;color:var(--accent);margin-bottom:12px;text-align:center}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);font-size:13px;gap:12px}
+.tr:last-child{border-bottom:none}
+.tl{color:var(--text-dim);display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.ts{font-weight:700;white-space:nowrap;flex-shrink:0}
+.topic-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+
+/* Review */
+.review-list{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+.review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s ease}
+.review-item:active{transform:scale(.99)}
+.review-item.correct{border-left:3px solid var(--correct)}
+.review-item.incorrect{border-left:3px solid var(--incorrect)}
+.review-item.unanswered{border-left:3px solid var(--text-muted);opacity:.7}
+.review-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.review-num{font-family:'Fraunces',serif;font-weight:700;font-size:13px}
+.review-q{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.review-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;padding:2px 8px;border-radius:5px}
+.review-status.correct{background:var(--correct-bg);color:var(--correct)}
+.review-status.incorrect{background:var(--incorrect-bg);color:var(--incorrect)}
+.review-status.unanswered{background:rgba(139,144,160,.1);color:var(--text-muted)}
+
+/* Submit modal */
+.summary-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.summary-modal.show{display:flex}
+.summary-content{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:420px;width:100%;animation:su .3s ease}
+.summary-content h3{font-family:'Fraunces',serif;font-size:19px;margin-bottom:14px}
+.summary-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.summary-stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.summary-stat-num{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
+.summary-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px}
+.summary-warn{background:rgba(248,113,113,.08);border:1px solid var(--incorrect-border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12.5px;color:var(--incorrect)}
+.summary-actions{display:flex;gap:10px}
+.summary-actions button{flex:1;padding:12px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;min-height:44px}
+
+@media(max-width:600px){
+  .app{padding:16px 14px calc(72px + var(--safe-bottom))}
+  .header{padding:24px 0 22px}
+  .header h1{font-size:22px}
+  .mode-section{margin-bottom:24px}
+  .mode-section h2{font-size:16px}
+  .mode-cards{gap:8px}
+  .mode-card{padding:12px;min-height:80px}
+  .mode-card-title{font-size:13px}
+  .mode-card-desc{font-size:11px}
+  .chapter-card{padding:14px;gap:12px;min-height:64px}
+  .chapter-title{font-size:14.5px}
+  .start-bar{padding:12px 14px;border-radius:12px}
+  .start-info{font-size:12.5px;width:100%;text-align:center;order:1}
+  .btn-start{width:100%;order:2}
+  .quiz-top{gap:8px}
+  .timer{font-size:12px;padding:5px 10px}
+  .pbc{min-width:140px}
+  .qc{padding:18px 16px;border-radius:14px}
+  .qm{gap:5px}
+  .badge,.bt{font-size:9.5px;padding:3px 7px}
+  .csb{padding:12px 14px;font-size:13px}
+  .qn{font-size:12px}
+  .qt{font-size:14.5px}
+  .ob{padding:12px;font-size:13.5px;line-height:1.55;gap:10px;min-height:48px}
+  .ob .lt{min-width:24px;height:24px;font-size:10.5px}
+  .ar{gap:8px}
+  .bs,.bn{padding:12px 18px;font-size:13.5px;width:100%}
+  .btn-prev{width:100%}
+  .rb{padding:14px}
+  .rb p{font-size:13px}
+  .nav-toggle{width:46px;height:46px;font-size:16px;right:16px;bottom:calc(16px + var(--safe-bottom))}
+  .nav-grid{grid-template-columns:repeat(8,1fr);gap:5px}
+  .nav-cell{font-size:10.5px}
+  .fs{padding:24px 8px}
+  .fs h2{font-size:21px}
+  .fsc{font-size:48px}
+  .fs-btns{flex-direction:column;gap:8px;width:100%}
+  .br,.br-sec{width:100%}
+  .summary-content{padding:20px}
+  .summary-stat-num{font-size:19px}
+}
+@media(max-width:380px){
+  .nav-grid{grid-template-columns:repeat(7,1fr)}
+  .qt{font-size:14px}
+  .ob{font-size:13px}
+  .mode-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
+<div class="nav-panel" id="navPanel"></div>
+<div class="summary-modal" id="summaryModal"></div>
+<script>
+const CHAPTERS={
+  '24':{name:'Hematologic & Neoplastic Disorders',color:'#F472B6',short:'Heme/Onc'},
+  '25':{name:'Immunity & Immunologic Disorders',color:'#34D399',short:'Immunity'},
+  '26':{name:'Metabolism & Endocrine Disorders',color:'#60A5FA',short:'Endocrine'}
+};
+
+// Each question tagged with chapter (24/25/26) and section (specific topic from study guide)
+const Q=[
+// ============ CHAPTER 24: HEMATOLOGIC & NEOPLASTIC (22 questions) ============
+
+// --- Iron Deficiency Anemia ---
+{ch:'24',sec:'Iron Deficiency',ty:['ngn'],q:"A nurse is counseling parents of an 8-month-old infant about iron-deficiency anemia prevention. Which recommendation is consistent with the study guide?",o:["Switch to whole cow's milk now to provide additional calories","Continue iron-fortified formula or breast milk plus iron supplementation, and offer iron-fortified cereals as the best solid-food source of iron","Begin daily multivitamin without iron","Avoid solid foods until 12 months"],ci:[1],r:"Per Ch 24: infants <12 months should receive iron-fortified formula or breast milk + iron supplement after 4 months. Iron-fortified cereals (introduced ~6 months) are the best solid-food source of iron. Cow's milk before 12 months is contraindicated — low iron, blocks absorption, microscopic GI bleeding."},
+{ch:'24',sec:'Iron Deficiency',ty:['sata'],q:"A nurse is teaching a parent about administering ferrous sulfate to a child. Which instructions are correct? Select all that apply.",o:["Give with vitamin C (orange juice) to enhance absorption","Stools may appear dark — this is expected","Mix with milk to reduce stomach upset","Use a straw when giving liquid form to prevent tooth staining","Stop the medication if stools turn dark"],ci:[0,1,3],r:"Per Ch 24: ferrous sulfate — give with vitamin C to enhance absorption; causes dark stools (expected, not a reason to stop). Milk and dairy DECREASE iron absorption. Liquid iron stains teeth — use a straw and rinse mouth after."},
+
+// --- Sickle Cell Anemia ---
+{ch:'24',sec:'Sickle Cell',ty:['ngn'],q:"Both parents of a newborn are confirmed carriers of sickle cell trait. The nurse explains the chance of the child having sickle cell anemia (SCA) is:",o:["0%","25%","50%","100%"],ci:[1],r:"Per Ch 24: SCA is autosomal recessive. When both parents carry the trait, there is a 25% chance the child has SCA, 50% chance the child is a carrier, and 25% chance the child is unaffected."},
+{ch:'24',sec:'Sickle Cell',ty:['case','sata'],cs:"A 7-year-old with SCA is admitted in vasoocclusive crisis. Pain 9/10 in the legs, hands swollen and warm. The provider orders IV fluids and pain medication.",q:"Which nursing actions reflect priority care for sickle cell crisis? Select all that apply.",o:["Maintain IV fluid balance — dehydration increases sickling","Use ice packs on swollen extremities to reduce pain","Believe the child's pain report and treat aggressively","Assess for complications (stroke signs, vision changes, severe abdominal pain)","Administer meperidine (Demerol) for pain","Auscultate bowel sounds — hyperactive sounds are expected in SCA"],ci:[0,2,3],r:"Per Ch 24: dehydration INCREASES sickling — IV fluid balance is critical. Believe the child. Notify provider for fever, severe headache, vision changes, severe abdominal pain, weakness, or LOC. WARNING: meperidine NOT recommended — its metabolite normeperidine can cause SEIZURES. Ice/cold causes vasoconstriction and worsens sickling. ABSENCE of bowel sounds is expected (not hyperactive)."},
+{ch:'24',sec:'Sickle Cell',ty:['hard'],q:"Which finding in a child with sickle cell anemia would the nurse identify as UNEXPECTED and warranting immediate provider notification?",o:["Hemoglobin of 7.2 g/dL","Hyperactive bowel sounds","Painful swelling of the hands and feet (dactylitis)","Pain in extremities during a crisis"],ci:[1],r:"Per Ch 24: hyperactive bowel sounds are UNEXPECTED in SCA — absence of bowel sounds is the expected finding (likely from intestinal vaso-occlusion). Hemoglobin 6-9 g/dL is the chronic baseline. Dactylitis is a classic sign. Extremity pain is expected during crisis."},
+
+// --- Hemophilia ---
+{ch:'24',sec:'Hemophilia',ty:['ngn'],q:"A nurse is reviewing the chart of four children with bleeding disorders. Which child should be assessed FIRST?",o:["A 6-year-old with ITP and bruises on shins","A 4-year-old with hemophilia A who reports knee pain and edema","An 8-year-old with von Willebrand disease and a recent nosebleed that stopped","A 10-year-old with aplastic anemia awaiting routine labs"],ci:[1],r:"Per Ch 24: a child with hemophilia + knee pain/edema must be SEEN FIRST — this indicates possible hemarthrosis (joint bleeding). Hemarthrosis requires urgent factor replacement to prevent permanent joint damage. The other findings are concerning but stable. Hemophilia A = Factor VIII deficiency, X-linked recessive, accounts for 80% of hemophilia cases."},
+{ch:'24',sec:'Hemophilia',ty:['sata'],q:"Which statements about hemophilia are correct? Select all that apply.",o:["Hemophilia A is the classic form — Factor VIII deficiency","Hemophilia B (Christmas disease) is Factor IX deficiency","Both A and B are X-linked recessive and primarily affect males","Hemarthrosis presents with joint warmth, pain, bruising, and decreased movement","Females cannot be carriers of hemophilia"],ci:[0,1,2,3],r:"Per Ch 24: Hemophilia A = Factor VIII deficiency, accounts for 80% of cases (the 'classic' form). Hemophilia B (Christmas) = Factor IX. Both X-linked recessive — males express disease, females are carriers (and can rarely be affected if homozygous or with skewed X-inactivation). Hemarthrosis affects knee, ankle, elbow most commonly. Females CAN be carriers."},
+
+// --- ITP & vWD ---
+{ch:'24',sec:'ITP',ty:['ngn'],q:"A nurse is caring for a child with idiopathic thrombocytopenic purpura (ITP). The PRIORITY nursing diagnosis is:",o:["Risk for infection related to immune dysfunction","Ineffective tissue perfusion related to poor platelet formation","Acute pain related to joint inflammation","Imbalanced nutrition: less than body requirements"],ci:[1],r:"Per Ch 24: ITP priority nursing diagnosis = Ineffective tissue perfusion related to poor platelet formation. ITP is autoimmune — the immune system attacks and destroys the body's own platelets, leading to thrombocytopenia and bleeding risk. Monitor for petechiae, ecchymoses, and bleeding from any site."},
+{ch:'24',sec:'vWD',ty:['ngn'],q:"A nurse is teaching the parent of a child newly diagnosed with von Willebrand disease (vWD). The nurse should clarify that vWD differs from hemophilia in that:",o:["vWD only affects the elderly population","vWD involves a deficiency of von Willebrand factor and Factor VIII, and affects BOTH males and females","vWD is more severe than hemophilia in all cases","vWD requires no treatment"],ci:[1],r:"Per Ch 24: vWD = deficiency of von Willebrand factor and Factor VIII. Unlike hemophilia (X-linked, primarily males), vWD affects BOTH males and females (autosomal). Symptoms: easy bruising, mucosal bleeding (epistaxis, gum bleeding, heavy menses)."},
+
+// --- Aplastic Anemia ---
+{ch:'24',sec:'Aplastic Anemia',ty:['sata'],q:"A nurse is reviewing causes of aplastic anemia. Which causes are recognized? Select all that apply.",o:["Radiation exposure","Chemotherapy","Toxic chemicals","Certain drugs","Autoimmune disorders","Viral infections"],ci:[0,1,2,3,4,5],r:"Per Ch 24: aplastic anemia = ALL formed elements of blood depressed (pancytopenia: low RBCs, WBCs, AND platelets). Can be congenital or acquired. Causes include: radiation, chemotherapy, toxic chemicals, certain drugs, autoimmune disorders, viral infections."},
+
+// --- Leukemia ---
+{ch:'24',sec:'Leukemia',ty:['ngn'],q:"A nurse is reviewing childhood cancer statistics with nursing students. Which statement reflects the most common pediatric cancer?",o:["Acute lymphocytic leukemia (ALL) accounts for approximately 32% of all childhood cancers","Brain tumors account for the majority of childhood cancers","Wilms tumor is the most common childhood cancer","Osteosarcoma is the most common childhood cancer"],ci:[0],r:"Per Ch 24: ALL = acute lymphocytic leukemia, ~32% of all childhood cancers — the most common pediatric cancer. Diagnosis is confirmed by bone marrow aspiration and biopsy."},
+{ch:'24',sec:'Leukemia',ty:['ngn','hard'],q:"A child with newly diagnosed ALL is admitted. Which is the PRIORITY nursing intervention?",o:["Pain management with PCA","Protective isolation","Encouraging fluid intake","Promoting normal sleep patterns"],ci:[1],r:"Per Ch 24: PROTECTIVE ISOLATION is the priority nursing intervention for ALL — infections are the most common cause of death in children with leukemia (neutropenia from disease + treatment). Reverse isolation, strict handwashing, no live plants/flowers, low-bacteria diet, and avoid sick visitors."},
+{ch:'24',sec:'Leukemia',ty:['ngn'],q:"A nurse is preparing discharge teaching for parents of a 6-year-old with ALL. The PRIORITY teaching point is:",o:["Limit physical activity for the next 6 months","Call the provider if the child gets a sore throat","Avoid contact with all relatives","Maintain a vegetarian diet"],ci:[1],r:"Per Ch 24: PRIORITY discharge teaching = call provider if child gets a sore throat. A sore throat may signal infection — and in a neutropenic child, even minor infections can become life-threatening sepsis. Any fever, sore throat, or sign of infection requires immediate evaluation."},
+{ch:'24',sec:'Leukemia',ty:['hard'],q:"A nurse is assessing a child with ALL who is showing signs of CNS infiltration. Which findings are consistent with this complication?",o:["Joint pain and elevated WBC","Facial palsy and vision problems","Hyperactive bowel sounds and diarrhea","Hypertension and bradycardia"],ci:[1],r:"Per Ch 24: CNS infiltration in ALL → facial palsy and vision problems. Lumbar puncture ('spinal tap') checks CSF for leukemic cells; methotrexate is often given immediately after the LP via the same access (intrathecal chemotherapy)."},
+{ch:'24',sec:'Bone Marrow Aspiration',ty:['ngn'],q:"A nurse is preparing a 5-year-old for bone marrow aspiration. Which statement to the child is MOST appropriate?",o:["You will feel sharp cutting on your hip","You will feel pressure on your hip from the needle","You will feel nothing because of the medication","You will feel nausea during the test"],ci:[1],r:"Per Ch 24: during bone marrow aspiration, the child will feel PRESSURE on the hip from the needle. Done under local anesthesia or conscious sedation. Honest, age-appropriate language reduces anxiety and builds trust."},
+
+// --- Other Cancers ---
+{ch:'24',sec:'Neuroblastoma',ty:['sata'],q:"Which statements about neuroblastoma are accurate? Select all that apply.",o:["Accounts for ~8% of childhood cancers","Most common in children under 5 years","Arises from adrenal glands or immature nerve cells","The child should be sedated before MRI","First-line treatment is always surgery alone"],ci:[0,1,2,3],r:"Per Ch 24: neuroblastoma = ~8% of childhood cancers, children <5 years, arises from adrenal glands/immature nerve cells. Sedate before MRI (children must lie still, and MRI is loud and lengthy). Treatment varies by stage — may include surgery, chemo, radiation, immunotherapy. Not surgery alone in all cases."},
+{ch:'24',sec:'Retinoblastoma',ty:['ngn'],q:"A parent brings a 2-year-old to the clinic stating, 'There's a white spot in my child's eye in photos.' The nurse recognizes this finding as MOST consistent with:",o:["Cataract","Retinoblastoma — leukocoria (absent red reflex)","Conjunctivitis","Strabismus"],ci:[1],r:"Per Ch 24: retinoblastoma classic presenting sign = WHITE PUPIL (leukocoria, absent red reflex). Often first noticed in flash photographs. Urgent ophthalmology referral required — retinoblastoma is a malignant tumor that can metastasize and cause blindness or death if untreated."},
+{ch:'24',sec:'Wilms',ty:['ngn'],q:"A nurse is reviewing risk factors for Wilms tumor. Which is a recognized risk factor per the study guide?",o:["Beckwith-Wiedemann syndrome","Down syndrome","Diabetes mellitus type 1","Asthma"],ci:[0],r:"Per Ch 24: Beckwith-Wiedemann syndrome is a risk factor for Wilms tumor (nephroblastoma). Wilms tumor is the most common pediatric kidney cancer. KEY nursing rule: do NOT palpate the abdomen — this can rupture the tumor capsule and seed cancer cells. Sign over the bed: 'Do Not Palpate Abdomen.'"},
+{ch:'24',sec:'Bone Cancers',ty:['sata'],q:"Which statements about pediatric bone cancers are correct? Select all that apply.",o:["Osteosarcoma is the most common bone malignancy in children","Osteosarcoma occurs in long bones","Ewing sarcoma is highly malignant","Ewing sarcoma commonly affects pelvis, chest wall, vertebrae, and midshaft of long bones","X-ray bone lesions are seen in Ewing sarcoma"],ci:[0,1,2,3,4],r:"Per Ch 24: osteosarcoma = most common bone malignancy, long bones (often around the knee). Ewing sarcoma = highly malignant, pelvis/chest wall/vertebrae/midshaft long bones, with bone lesions visible on X-ray. Both peak in adolescence."},
+
+// --- Quick reference ---
+{ch:'24',sec:'NCLEX Reference',ty:['ngn'],q:"Match the priority action: A child with retinoblastoma. The PRIORITY assessment finding is:",o:["Bilateral hand swelling","Note white pupil (absent red reflex)","Hyperactive bowel sounds","Yellow stools"],ci:[1],r:"Per Ch 24 quick reference: retinoblastoma → note white pupil (absent red reflex). This is the classic presenting sign and the action that triggers urgent referral."},
+{ch:'24',sec:'NCLEX Reference',ty:['hard','ngn'],q:"A child arrives at the ED in sickle cell crisis. The nurse identifies the PRIORITY actions as:",o:["Antibiotic administration and isolation","Hydration and pain management","Blood transfusion and bed rest","Steroid administration and oxygen"],ci:[1],r:"Per Ch 24 quick reference: sickle cell crisis priority = HYDRATION + PAIN MANAGEMENT. Dehydration worsens sickling; pain must be aggressively controlled (not with meperidine — risk of normeperidine seizures). Other interventions (oxygen, possibly transfusion) are supportive but not the primary first-line."},
+{ch:'24',sec:'NCLEX Reference',ty:['ngn'],q:"A child with ITP is admitted. The nurse plans care around which priority assessment?",o:["Monitor blood glucose","Monitor for bleeding/petechiae","Monitor for hypertension","Monitor for hyperthermia"],ci:[1],r:"Per Ch 24 quick reference: ITP priority = monitor for bleeding/petechiae. Thrombocytopenia from autoimmune platelet destruction → bleeding risk. Assess skin for petechiae, ecchymoses; monitor for epistaxis, hematuria, GI bleeding, and (rare but serious) intracranial hemorrhage."},
+
+// ============ CHAPTER 25: IMMUNITY & IMMUNOLOGIC (22 questions) ============
+
+// --- Immune System Basics ---
+{ch:'25',sec:'Immune Basics',ty:['ngn'],q:"A nursing student asks the nurse to differentiate cellular from humoral immunity. The nurse's BEST response is:",o:["Cellular immunity = B cells; humoral = T cells","Cellular immunity = T cells; humoral immunity = B cells, antibodies, and antigens","Both types use the same cells","Humoral immunity does not exist"],ci:[1],r:"Per Ch 25: cellular immunity = T cells (note: T cells do NOT recognize antigens directly — they require antigen presentation). Humoral immunity = B cells, antibodies, and antigens. Both are part of adaptive immunity."},
+{ch:'25',sec:'Immunodeficiency',ty:['sata'],q:"Which causes of secondary (acquired) immunodeficiency are correct? Select all that apply.",o:["Severe infection","Cancer","Renal disease","Radiation","Stress","Malnutrition","Immunosuppressive therapy","Born with the condition"],ci:[0,1,2,3,4,5,6],r:"Per Ch 25: secondary (acquired) immunodeficiency = occurs AFTER birth. Causes: severe infection, cancer, renal disease, radiation, stress, malnutrition, immunosuppressive therapy. PRIMARY immunodeficiency = born with the immune defect (option 8 describes primary, not secondary)."},
+{ch:'25',sec:'Immunodeficiency',ty:['ngn'],q:"For a child with primary immunodeficiency, the PRIORITY nursing diagnosis is:",o:["Risk for fluid volume deficit","Ineffective protection related to impaired humoral defenses","Imbalanced nutrition","Activity intolerance"],ci:[1],r:"Per Ch 25: priority nursing diagnosis for primary immunodeficiency = Ineffective protection related to impaired humoral defenses. The child cannot produce adequate immune responses, so protection from infection is the central concern."},
+
+// --- SCID ---
+{ch:'25',sec:'SCID',ty:['sata'],q:"Which statements about Severe Combined Immune Deficiency (SCID) are correct? Select all that apply.",o:["Rare X-linked or autosomal recessive disorder","Absent T-cell AND B-cell function","Presents within the first 6 months of life","Treatment is emergency stem cell or bone marrow transplantation","Live vaccines are recommended to boost immunity","IVIG is given until transplant is available"],ci:[0,1,2,3,5],r:"Per Ch 25: SCID = rare, X-linked or autosomal recessive, ABSENT T-cell AND B-cell function. Presents within the first 6 months. Signs: severe infections, chronic diarrhea, FTT, persistent thrush, very low immunoglobulins. Tx: emergency stem cell/bone marrow transplant; IVIG bridge. NO LIVE VACCINES — SCID = bubble baby — live vaccines could cause fatal disease."},
+{ch:'25',sec:'SCID',ty:['hard','ngn'],q:"A child post-bone marrow transplant for SCID develops a maculopapular rash beginning on the palms and soles. The nurse recognizes this finding as MOST consistent with:",o:["Routine drug reaction","Graft-versus-host disease (GVHD) — life-threatening","Heat rash","Contact dermatitis"],ci:[1],r:"Per Ch 25: GVHD = maculopapular rash starting on PALMS and SOLES — life-threatening complication of stem cell/bone marrow transplant. The donated immune cells attack the recipient's tissues. Use only CMV-negative, irradiated blood/platelets for transfusion in SCID patients to prevent transfusion-associated GVHD."},
+
+// --- IVIG ---
+{ch:'25',sec:'IVIG',ty:['ngn'],q:"A nurse is administering IVIG to a child with primary immunodeficiency. According to the study guide, vital signs should be assessed:",o:["Once at the start and once at the end of the infusion","Every 15 minutes for the first hour, then every 30 minutes for the rest of the infusion","Every 4 hours throughout the infusion","Only if the child becomes symptomatic"],ci:[1],r:"Per Ch 25: IVIG vital signs = every 15 minutes for the FIRST HOUR, then every 30 minutes for the rest of the infusion. Anaphylaxis risk is highest in the first hour."},
+{ch:'25',sec:'IVIG',ty:['hard'],q:"A child receiving IVIG begins to vomit during the infusion. The nurse's FIRST action is:",o:["Slow the infusion rate and continue","Discontinue the infusion immediately — risk of anaphylaxis","Give an antiemetic and continue","Document and continue per protocol"],ci:[1],r:"Per Ch 25: if child vomits during IVIG → DISCONTINUE INFUSION FIRST — risk of anaphylaxis. Vomiting can be an early anaphylaxis sign. Stop the infusion, maintain IV access with NS, assess airway/breathing/circulation, and notify provider immediately. Anaphylaxis treatment if it develops: epinephrine FIRST."},
+
+// --- HIV/AIDS ---
+{ch:'25',sec:'HIV',ty:['ngn'],q:"A nurse needs to confirm HIV infection in a 3-month-old infant born to an HIV-positive mother. The PREFERRED test is:",o:["ELISA","Western blot","PCR (polymerase chain reaction)","Rapid antibody test"],ci:[2],r:"Per Ch 25: PCR = preferred test for HIV in infants over 1 month of age. ELISA is LESS ACCURATE in infants because transplacentally received maternal antibodies may persist up to 24 months → false positives. PCR detects viral nucleic acid directly, bypassing the antibody problem."},
+{ch:'25',sec:'HIV',ty:['ngn'],q:"A nurse is monitoring a child with HIV/AIDS. Which test is used for ONGOING MONITORING of disease progression?",o:["PCR every visit","CD4/T-cell quantification","ELISA","CBC alone"],ci:[1],r:"Per Ch 25: CD4/T-cell quantification = used for ONGOING MONITORING of HIV disease progression. CD4 count reflects immune system function — declining counts indicate progression and inform decisions about prophylactic therapy and HAART regimen changes."},
+{ch:'25',sec:'HIV',ty:['sata'],q:"Which statements about HIV treatment in children are correct? Select all that apply.",o:["HAART is a three-drug regimen of NRTIs + NNRTIs + protease inhibitors","Newborns of HIV-positive mothers receive a 6-week course of zidovudine","Cyclosporine A should NOT be taken with grapefruit juice","Cyclosporine A may be taken with dairy","Primary prevention of AIDS is condom education","Newborns of HIV-positive mothers should be breastfed in all settings"],ci:[0,1,2,3,4],r:"Per Ch 25: HAART = NRTIs + NNRTIs + protease inhibitors (3-drug regimen). Newborns of HIV+ mothers = 6-week course of zidovudine. Cyclosporine A: NO grapefruit juice (CYP3A4 inhibition → toxic levels); may take with dairy. Primary prevention = condom education. In developed countries, HIV+ mothers are advised NOT to breastfeed (formula provides equivalent nutrition without transmission risk)."},
+
+// --- JIA ---
+{ch:'25',sec:'JIA',ty:['sata'],q:"A nurse is reviewing the three types of juvenile idiopathic arthritis (JIA). Which statements are correct? Select all that apply.",o:["Pauciarticular (oligoarticular) JIA affects 4 or fewer joints, often the knee, with eye inflammation and poor appetite/weight gain","Polyarticular JIA affects 5 or more joints, with small joints affected symmetrically","Systemic JIA presents with fever and rash at diagnosis","All forms of JIA have identical clinical presentations","Systemic JIA can affect any joint"],ci:[0,1,2,4],r:"Per Ch 25 JIA table: Pauciarticular = ≤4 joints, knee often, eye inflammation (uveitis), poor appetite. Polyarticular = ≥5 joints, small joints, symmetric. Systemic = any joint + fever + rash at diagnosis. The three forms are clinically distinct, not identical."},
+{ch:'25',sec:'JIA',ty:['ngn'],q:"A nurse is evaluating lab work for a child with JIA. Which lab indicates current disease activity (exacerbation)?",o:["Decreased WBC","Elevated ESR (erythrocyte sedimentation rate)","Decreased platelets","Elevated calcium"],ci:[1],r:"Per Ch 25: ESR is elevated during JIA exacerbation — it's an indicator of inflammation. Used to monitor disease activity over time."},
+{ch:'25',sec:'JIA',ty:['ngn'],q:"A nurse is recommending an exercise activity for a child with JIA. The BEST option is:",o:["High-impact running","Tackle football","Swimming","Gymnastics with floor routines"],ci:[2],r:"Per Ch 25: best exercise for JIA = SWIMMING. It maintains mobility without putting pressure on joints. Buoyancy reduces joint stress, water resistance builds muscle, and warm water can ease pain."},
+{ch:'25',sec:'JIA',ty:['hard','sata'],q:"A child with JIA is taking aspirin therapy. Which signs of aspirin toxicity should the nurse teach the parent to monitor for? Select all that apply.",o:["Drowsiness","Heavy breathing","Vomiting","Tinnitus (ringing in the ears)","Constipation","Bradycardia"],ci:[0,1,2,3],r:"Per Ch 25: aspirin toxicity (salicylism) signs = drowsiness, heavy breathing, vomiting, tinnitus. Other signs not in study guide but commonly tested: hyperventilation, fever, mental status changes. Note: aspirin in children with viral illness = Reye syndrome risk; JIA is one of the few accepted pediatric uses of aspirin."},
+{ch:'25',sec:'JIA',ty:['ngn'],q:"A nurse is teaching a parent about methotrexate, a DMARD prescribed for JIA. The nurse explains the purpose of methotrexate is to:",o:["Provide immediate pain relief","Prevent disease progression","Increase joint flexibility through topical application","Suppress fever during flares"],ci:[1],r:"Per Ch 25: methotrexate (DMARD) = used to PREVENT DISEASE PROGRESSION in JIA. DMARDs (disease-modifying antirheumatic drugs) slow the underlying inflammatory process; NSAIDs and corticosteroids manage symptoms but don't slow progression."},
+
+// --- SLE ---
+{ch:'25',sec:'SLE',ty:['sata'],q:"Which statements about systemic lupus erythematosus (SLE) in children are correct? Select all that apply.",o:["Multisystem autoimmune disorder affecting both humoral and cellular immunity","Primarily diagnosed around puberty","More common in females","Initial symptoms in children are commonly hematologic, cutaneous, and musculoskeletal","SLE is most common in elderly males","Severe SLE is treated with high-dose pulse corticosteroids"],ci:[0,1,2,3,5],r:"Per Ch 25: SLE = multisystem autoimmune (humoral + cellular). Diagnosed around puberty, more common in females. Initial pediatric symptoms: hematologic, cutaneous, musculoskeletal. Severe SLE → high-dose pulse corticosteroids. NOT most common in elderly males — peaks in young women, including adolescents."},
+{ch:'25',sec:'SLE',ty:['ngn'],q:"Which finding is the classic dermatologic sign of SLE?",o:["Vesicular rash on the trunk","Butterfly/malar rash over nose and cheeks","Petechiae on the legs","Honey-colored crusts around the mouth"],ci:[1],r:"Per Ch 25: SLE key signs include butterfly/malar rash over nose and cheeks, discoid lesions, alopecia, arthritis, photosensitivity, thrombocytopenia, nephritis, painless oral ulcerations. Lab: ↓Hgb/Hct, ↓platelets, ↓WBC, ↓C3/C4."},
+{ch:'25',sec:'SLE',ty:['ngn'],q:"A nurse is providing teaching to an adolescent with SLE about lifestyle management. Which instruction is essential?",o:["Avoid all physical activity to prevent joint damage","Use sunscreen and protect from sun exposure due to photosensitivity","Eat only raw foods","Avoid all vaccinations"],ci:[1],r:"Per Ch 25: SLE nursing teaching = sun protection (sunscreen) due to photosensitivity, layering for cold, healthy diet, rest. UV exposure can trigger flares. Treatment includes NSAIDs, corticosteroids, antimalarial agents (hydroxychloroquine)."},
+
+// --- Anaphylaxis ---
+{ch:'25',sec:'Anaphylaxis',ty:['ngn','hard'],q:"A 7-year-old develops sudden flushing, hives, wheezing, and stridor after a peanut exposure. The FIRST-LINE treatment is:",o:["Diphenhydramine PO","Epinephrine IM","Albuterol nebulizer","Methylprednisolone IV"],ci:[1],r:"Per Ch 25: anaphylaxis FIRST-LINE = EPINEPHRINE — reverses bronchospasm and edema. Anaphylaxis sequence: allergen exposure → rapid immune response → vasodilation → bronchoconstriction → circulatory collapse. Antihistamines and steroids are adjuncts but are NEVER first-line."},
+{ch:'25',sec:'Anaphylaxis',ty:['ngn'],q:"A school nurse is training a teacher on EpiPen use. The correct injection technique is:",o:["Inject into the upper arm at a 45-degree angle","Inject into the outer thigh at a 90-degree angle","Inject into the abdomen subcutaneously","Inject into the buttock at a 45-degree angle"],ci:[1],r:"Per Ch 25: EpiPen = inject into OUTER THIGH at 90-DEGREE ANGLE — NOT the upper arm. The vastus lateralis muscle is large, accessible (even through clothing), and provides reliable IM absorption. Hold for 3 seconds. Call EMS immediately after."},
+{ch:'25',sec:'Anaphylaxis',ty:['ngn'],q:"A parent of a child with severe peanut allergy asks if the child can carry an EpiPen at school. The nurse responds:",o:["No, only school nurses can administer epinephrine","Yes — Public Law 108-377 gives students the legal right to carry an EpiPen at school at all times","Only with a doctor's note resubmitted every month","Only during lunch periods"],ci:[1],r:"Per Ch 25: Public Law 108-377 = students have the LEGAL RIGHT to carry an EpiPen at school at ALL TIMES. This protects access during emergencies — anaphylaxis can progress to fatal airway compromise within minutes."},
+{ch:'25',sec:'Food/Latex Allergy',ty:['sata'],q:"A nurse is teaching parents which foods to avoid in the first year of life to reduce allergy risk. Per the study guide, which foods should be avoided? Select all that apply.",o:["Cow's milk","Eggs","Peanuts","Tree nuts","Sesame seeds","Fish and shellfish","Kiwifruit","Iron-fortified rice cereal"],ci:[0,1,2,3,4,5,6],r:"Per Ch 25: avoid in first year = cow's milk, eggs, peanuts, tree nuts, sesame seeds, fish, shellfish, and KIWIFRUIT. Breastfeeding for at least 6 months is recommended. Note: current guidelines on early peanut introduction have evolved with the LEAP study, but this study guide reflects the listed approach."},
+{ch:'25',sec:'Food/Latex Allergy',ty:['sata'],q:"A child with documented latex allergy is being prepared for surgery. Which foods should the nurse counsel the family to avoid due to potential cross-reactivity? Select all that apply.",o:["Banana","Avocado","Kiwi","Chestnut","Tomato","Potato","Carrot","Apple","White rice"],ci:[0,1,2,3,4,5,6,7],r:"Per Ch 25: latex cross-reactive foods = banana, avocado, kiwi, chestnut, tomato, potato, carrot, celery, apple, peach, pear, and others. White rice is not on the list. Latex-fruit syndrome occurs because some plant proteins are structurally similar to latex proteins."},
+
+// ============ CHAPTER 26: METABOLISM & ENDOCRINE (32 questions) ============
+
+// --- Endocrine Basics ---
+{ch:'26',sec:'Endocrine Basics',ty:['sata'],q:"Which key diagnostic tests are used in pediatric endocrine workup? Select all that apply.",o:["Blood glucose","Hemoglobin A1c","Growth hormone stimulation testing","Bone age radiographs","Water deprivation study","CT/MRI","Lumbar puncture"],ci:[0,1,2,3,4,5],r:"Per Ch 26: key endocrine diagnostic tests = blood glucose, HbA1c, GH stimulation testing, bone age radiographs, water deprivation study, CT/MRI. Lumbar puncture is not part of routine endocrine workup. Most endocrine glands begin developing in the first trimester but are incomplete at birth."},
+
+// --- GH Deficiency ---
+{ch:'26',sec:'GH Deficiency',ty:['ngn'],q:"A nurse is teaching parents about somatropin therapy for their child's growth hormone deficiency. Which statement is correct?",o:["Somatropin is given orally with breakfast","Somatropin is given by injection and is stopped at the normal time of puberty","Somatropin is given as a nasal spray for life","Somatropin is given only during illness"],ci:[1],r:"Per Ch 26: somatropin = given by INJECTION (NOT oral). Treatment for GH deficiency continues until the normal time of puberty, then stops. Hypopituitarism = failure of anterior pituitary or hypothalamus → poor growth, short stature."},
+{ch:'26',sec:'GH Deficiency',ty:['sata'],q:"A nurse is monitoring a child receiving growth hormone therapy. Which complications should the nurse watch for? Select all that apply.",o:["Slipped capital femoral epiphysis (SCFE)","Pseudotumor cerebri","Hypoglycemia","Hyperthyroidism","Hypertension as a primary complication"],ci:[0,1,2],r:"Per Ch 26: GH therapy complications = SCFE, pseudotumor cerebri (idiopathic intracranial hypertension), hypoglycemia. Hyperthyroidism and primary hypertension are not listed as primary GH therapy complications in the study guide."},
+{ch:'26',sec:'GH Deficiency',ty:['ngn'],q:"A nurse is identifying nursing diagnoses for an 11-year-old with GH deficiency. The PRIORITY nursing diagnosis is:",o:["Acute pain","Disturbed body image","Risk for infection","Imbalanced nutrition: more than body requirements"],ci:[1],r:"Per Ch 26: priority nursing diagnosis for GH deficiency = Disturbed body image. The child is significantly shorter than peers, which has profound psychosocial impact during school-age and adolescence — bullying, social withdrawal, low self-esteem are common."},
+{ch:'26',sec:'Hyperpituitarism',ty:['ngn'],q:"A child diagnosed with hyperpituitarism is starting medical therapy. The medication used to suppress growth hormone is:",o:["Somatropin","Octreotide acetate","Levothyroxine","Methimazole"],ci:[1],r:"Per Ch 26: hyperpituitarism treatment = octreotide acetate injection (suppresses GH). Surgery may be needed to remove anterior pituitary tumor. Somatropin TREATS GH deficiency (the opposite condition)."},
+
+// --- Diabetes Insipidus ---
+{ch:'26',sec:'DI',ty:['ngn'],q:"A 6-year-old presents with a 3-day history of abrupt-onset polyuria, nocturia, and polydipsia. The nurse suspects:",o:["Type 1 diabetes mellitus","Diabetes insipidus","SIADH","Cushing syndrome"],ci:[1],r:"Per Ch 26: DI classic symptoms = ABRUPT onset of polyuria, nocturia, and polydipsia. DI = deficient secretion of ADH (antidiuretic hormone). Differs from DM by absence of hyperglycemia. Priority diagnosis: Deficient fluid volume related to dehydration."},
+{ch:'26',sec:'DI',ty:['ngn'],q:"A child with DI is started on desmopressin acetate (DDAVP). The nurse teaches the family that this medication is administered:",o:["Orally with meals","Intranasally","Intramuscularly daily","Topically"],ci:[1],r:"Per Ch 26: DDAVP (desmopressin acetate) for DI = administered intranasally. (Note: DDAVP is also available as oral, sublingual, and IV forms in clinical practice; the study guide specifies intranasal.)"},
+{ch:'26',sec:'DI',ty:['hard','ngn'],q:"During a water deprivation study for DI, the MOST IMPORTANT assessment is:",o:["Daily weight only","Urine output","Heart rate","Skin turgor"],ci:[1],r:"Per Ch 26: during fluid restriction (water deprivation study), URINE OUTPUT is the MOST IMPORTANT assessment. In DI, urine output remains high despite fluid restriction (kidneys can't concentrate urine without ADH) — this confirms diagnosis. Monitor closely for dehydration."},
+{ch:'26',sec:'DI',ty:['ngn'],q:"A nurse is monitoring a child receiving vasopressin therapy for DI. A complication of overtreatment that the nurse should watch for is:",o:["Diabetes mellitus","SIADH","Addison disease","Hypothyroidism"],ci:[1],r:"Per Ch 26: complication of vasopressin therapy = monitor for SIADH (overtreatment). SIADH = syndrome of inappropriate ADH secretion → water retention, hyponatremia, fluid overload. Essentially the OPPOSITE of DI; over-replacement of ADH causes the opposite problem."},
+
+// --- Thyroid ---
+{ch:'26',sec:'Thyroid',ty:['sata'],q:"Which features are characteristic of HYPOthyroidism (vs hyperthyroidism)? Select all that apply.",o:["Slowed metabolism","Weight gain","Cold intolerance","Dry skin","Fatigue and lethargy","Constipation","Diarrhea","Heat intolerance"],ci:[0,1,2,3,4,5],r:"Per Ch 26 thyroid table: HYPOthyroidism = slowed metabolism, weight gain, cold intolerance, dry skin, fatigue/lethargy, constipation. Diarrhea and heat intolerance are HYPERthyroid features. Treatment: levothyroxine."},
+{ch:'26',sec:'Congenital Hypothyroidism',ty:['sata'],q:"Which findings would the nurse expect in an infant with congenital hypothyroidism? Select all that apply.",o:["Lethargy","Failure to thrive","Jaundice","Open fontanels past normal stages","Poor muscle tone","Periorbital edema","Large protruding tongue","Hyperactivity and weight loss"],ci:[0,1,2,3,4,5,6],r:"Per Ch 26: congenital hypothyroidism signs = lethargy, FTT, jaundice, open fontanels past normal stages, poor muscle tone, periorbital edema, large protruding tongue. Hyperactivity and weight loss are NOT present (these would be hyperthyroid features). Diagnosed by NEWBORN SCREENING in most states."},
+{ch:'26',sec:'Congenital Hypothyroidism',ty:['hard','ngn'],q:"Parents of an infant newly diagnosed with congenital hypothyroidism ask the nurse, 'Will our baby need to be put under the special light like the other jaundiced babies?' The nurse's BEST response is:",o:["Yes, phototherapy is the standard treatment","No — congenital hypothyroidism is treated with oral levothyroxine that must be given for life","Only for the first month","Only if the bilirubin level is high"],ci:[1],r:"Per Ch 26: congenital hypothyroidism treatment = oral levothyroxine — must be given INDEFINITELY (for LIFE). NOT treated with phototherapy. Parents who ask about a 'special light' need more education. Untreated congenital hypothyroidism causes permanent intellectual disability — early treatment preserves normal IQ."},
+{ch:'26',sec:'Hyperthyroidism',ty:['ngn'],q:"The most common cause of hyperthyroidism in children is:",o:["Hashimoto thyroiditis","Graves' disease","Thyroid cancer","Iodine deficiency"],ci:[1],r:"Per Ch 26: most common cause of hyperthyroidism in children = GRAVES' DISEASE. Occurs in 1 in 5,000 children ages 11-15. More common in females; peak incidence during adolescence. Treatment: methimazole (antithyroid drug)."},
+{ch:'26',sec:'Hyperthyroidism',ty:['ngn'],q:"A nurse is teaching a parent about methimazole for Graves' disease. The drug class is:",o:["Beta blocker","Antithyroid drug","Corticosteroid","Anti-inflammatory"],ci:[1],r:"Per Ch 26: methimazole = antithyroid drug. It blocks thyroid hormone synthesis. Beta blockers (e.g., propranolol) are sometimes used for symptom control (tachycardia, tremor) but are not antithyroid drugs."},
+
+// --- Adrenal ---
+{ch:'26',sec:'CAH',ty:['ngn'],q:"A nurse is performing the priority assessment on a newborn diagnosed with the salt-losing form of congenital adrenal hyperplasia (CAH). The KEY assessment is:",o:["Daily weight","Dehydration","Blood pressure","Reflexes"],ci:[1],r:"Per Ch 26: salt-losing CAH key assessment = DEHYDRATION. CAH (inherited disorder of adrenal androgen production) → impaired aldosterone → salt wasting → severe dehydration. Crisis signs: persistent vomiting, electrolyte imbalances. Treatment: dexamethasone."},
+{ch:'26',sec:'Addison',ty:['sata'],q:"Which findings are consistent with Addison disease in a child? Select all that apply.",o:["Weight loss","Poor appetite","Associated with history of tuberculosis","Decreased sodium","Increased potassium","Decreased glucose","Increased glucose","Weight gain"],ci:[0,1,2,3,4,5],r:"Per Ch 26: Addison disease = autoimmune destruction of adrenal cortex. Signs: weight LOSS, poor appetite, history of tuberculosis. Labs: DECREASED Na⁺ and glucose, INCREASED K⁺. Weight gain and increased glucose are Cushing features (the opposite condition)."},
+{ch:'26',sec:'Cushing',ty:['sata'],q:"Which findings are characteristic of Cushing syndrome? Select all that apply.",o:["Weight gain","Moon face","Buffalo hump","Hyperglycemia","Poor wound healing","Hyperpigmentation","Salt wasting"],ci:[0,1,2,3,4],r:"Per Ch 26: Cushing syndrome = EXCESSIVE circulating cortisol. Signs: weight gain, moon face, buffalo hump, hyperglycemia, poor wound healing. Hyperpigmentation is more associated with Addison/primary adrenal insufficiency (high ACTH stimulates melanocytes). Salt wasting is a CAH/Addison feature, not Cushing."},
+
+// --- Diabetes ---
+{ch:'26',sec:'T1 vs T2',ty:['sata'],q:"Which statements correctly compare Type 1 and Type 2 diabetes mellitus in children? Select all that apply.",o:["T1DM = autoimmune destruction of beta cells with absolute insulin deficiency","T2DM = insulin resistance with relative deficiency, often associated with obesity","T1DM has abrupt onset; T2DM has gradual onset","T1DM is treated with lifelong insulin","T2DM is initially treated with oral agents (metformin), meal planning, and exercise","DKA risk is higher in T2DM than T1DM","T1DM can be treated with oral hypoglycemic agents alone"],ci:[0,1,2,3,4],r:"Per Ch 26 DM table: T1 = autoimmune beta-cell destruction, absolute insulin deficiency, abrupt onset, lifelong insulin (NOT oral agents alone), HIGH DKA risk. T2 = insulin resistance, relative deficiency, gradual onset/obesity-associated, oral agents + lifestyle, lower DKA risk (unless acutely ill)."},
+{ch:'26',sec:'T1 Signs',ty:['sata'],q:"Which signs are the classic '3 Ps + weight loss' of new-onset Type 1 diabetes? Select all that apply.",o:["Polyuria","Polydipsia","Polyphagia","Weight loss despite good appetite","Pallor","Petechiae"],ci:[0,1,2,3],r:"Per Ch 26: T1DM key signs = the 3 Ps + weight loss. Polyuria (osmotic diuresis from hyperglycemia), polydipsia (thirst from dehydration), polyphagia (hunger despite weight loss), and weight loss. Pallor and petechiae are not characteristic of new-onset T1DM."},
+{ch:'26',sec:'BG Targets',ty:['hard','ngn'],q:"A parent of a 9-year-old with T1DM states, 'I keep my child's blood sugar between 70-110 before meals.' The nurse recognizes this statement requires further teaching because:",o:["The target is too high","The target is too low — premeal target for a 9+ year-old is 80-150 mg/dL, and 70-110 is too tight a range that risks hypoglycemia","The target is correct","Targets do not apply to children"],ci:[1],r:"Per Ch 26: blood glucose targets for children with T1DM — age 9+ before meals: 80-150 mg/dL (NOT 70-110). Age 7 before meals: 90-180 mg/dL. Tighter targets (like 70-110) increase hypoglycemia risk in children whose ability to recognize and report hypoglycemia is limited. Parents stating 70-110 NEED FURTHER TEACHING."},
+{ch:'26',sec:'BG Diagnosis',ty:['ngn'],q:"Which lab values confirm a diagnosis of diabetes mellitus per the study guide?",o:["Fasting blood glucose >100 mg/dL OR HbA1c ≥5.5%","Fasting blood glucose >126 mg/dL OR HbA1c ≥6.5%","Random glucose >100 mg/dL","Fasting glucose >180 mg/dL only"],ci:[1],r:"Per Ch 26: confirm DM with fasting blood glucose >126 mg/dL OR HbA1c ≥6.5%. (Other accepted criteria from broader sources include random glucose ≥200 with symptoms, and 2-hour OGTT ≥200 — but the study guide specifies the two listed.)"},
+{ch:'26',sec:'Insulin',ty:['sata'],q:"Which statements about insulin administration in children are correct? Select all that apply.",o:["When mixing insulins, draw up SHORT-ACTING insulin FIRST","Glargine (Lantus) should NEVER be mixed with other insulins","Glargine has no peak and lasts ~24 hours; usually given at bedtime","After receiving insulin, the child must eat within 15-30 minutes","Insulin should be stored cold for injection because it is more comfortable","Opened insulin vials should be discarded after 1 month"],ci:[0,1,2,3,5],r:"Per Ch 26: short-acting insulin drawn up FIRST when mixing (clear before cloudy). Glargine NEVER mixed (forms precipitate, no peak, ~24 hr duration, bedtime). Eat within 15-30 min after insulin. Insulin stored at ROOM TEMPERATURE — cold insulin INCREASES injection discomfort. Opened vials discarded after 1 month."},
+{ch:'26',sec:'Insulin',ty:['hard'],q:"A nurse is teaching a child and parent about mixing regular and NPH insulin in the same syringe. The correct order is:",o:["Draw up NPH first, then regular","Draw up regular (short-acting) first, then NPH","It does not matter which is drawn up first","Always use separate syringes regardless of cost"],ci:[1],r:"Per Ch 26: when mixing insulins, draw up SHORT-ACTING (regular) insulin FIRST. Mnemonic: 'clear before cloudy' (regular is clear; NPH is cloudy). This prevents contamination of the short-acting vial with the longer-acting suspension."},
+
+// --- Hypoglycemia ---
+{ch:'26',sec:'Hypoglycemia',ty:['sata'],q:"A nurse is teaching a parent about signs of hypoglycemia in a child with T1DM. Which signs should the parent recognize? Select all that apply.",o:["Shakiness","Sweating","Confusion","Tearfulness","Irritability","Polyuria"],ci:[0,1,2,3,4],r:"Per Ch 26: hypoglycemia signs = shakiness, sweating, confusion, tearfulness, irritability. NOTE the study guide explicitly states: 'irritability = LOW blood sugar, NOT high.' Polyuria is a HYPERglycemia sign (osmotic diuresis)."},
+{ch:'26',sec:'Hypoglycemia',ty:['ngn'],q:"A 7-year-old with T1DM is alert and reports 'feeling shaky.' Blood glucose is 56 mg/dL. The FIRST nursing action is:",o:["Give subcutaneous glucagon","Give a fast-acting carbohydrate (juice or glucose tablets)","Give regular insulin","Wait 15 minutes and recheck"],ci:[1],r:"Per Ch 26: hypoglycemia + child can eat/drink → fast-acting carbohydrate (juice, glucose tablets) FIRST. Recheck in 15 minutes; repeat if still low. Follow with a complex carb + protein once stable. Glucagon is reserved for children who CANNOT eat/drink (insulin reaction with altered LOC)."},
+{ch:'26',sec:'Hypoglycemia',ty:['ngn','hard'],q:"A 9-year-old with T1DM is found unresponsive after giving themselves insulin. The FIRST nursing action is:",o:["Give orange juice by mouth","Administer subcutaneous glucagon","Wait for emergency services","Recheck blood glucose only"],ci:[1],r:"Per Ch 26: child with insulin reaction who CANNOT eat/drink → administer SUBCUTANEOUS GLUCAGON. Never put anything in the mouth of an unresponsive child (aspiration risk). Glucagon raises blood glucose by triggering hepatic glycogenolysis. After child wakes, give carbohydrate to prevent recurrence."},
+
+// --- DKA ---
+{ch:'26',sec:'DKA',ty:['sata'],q:"A 12-year-old presents in DKA. Which signs are characteristic? Select all that apply.",o:["Polyuria and polydipsia","Nausea, vomiting, and abdominal pain","Fruity breath","Kussmaul breathing (rapid, deep)","Dehydration","Hyperactive bowel sounds with diarrhea","Bradypnea"],ci:[0,1,2,3,4],r:"Per Ch 26: DKA signs = polyuria, polydipsia, nausea/vomiting, abdominal pain, FRUITY BREATH (acetone), Kussmaul breathing (rapid/deep — respiratory compensation), dehydration. NOT hyperactive bowel sounds with diarrhea, NOT bradypnea (Kussmaul is the opposite — tachypnea with deep breaths)."},
+{ch:'26',sec:'DKA',ty:['ngn','hard'],q:"A 14-year-old in DKA has been receiving NS for 1 hour. The provider orders insulin therapy. The nurse knows the PRIORITY treatment sequence for DKA is:",o:["Give insulin first, then fluids","Give IV fluids first, then insulin therapy","Give bicarbonate first, then insulin","Give potassium first, then insulin"],ci:[1],r:"Per Ch 26: DKA PRIORITY treatment = IV FLUID REPLACEMENT FIRST, then insulin therapy. Fluids restore circulation and improve tissue perfusion. Starting insulin before adequate fluid resuscitation can drop K⁺ catastrophically and worsen tissue ischemia."},
+{ch:'26',sec:'DKA',ty:['hard'],q:"A child in DKA needs IV insulin. Which type of insulin can be given IV?",o:["NPH insulin","Glargine (Lantus)","Regular insulin","Lispro (Humalog)"],ci:[2],r:"Per Ch 26: REGULAR insulin is the ONLY insulin that can be given IV. NPH is a suspension (cannot be IV). Long-acting analogs (glargine, detemir) are formulated for SubQ only. Rapid-acting analogs (lispro, aspart) are typically given SubQ but newer evidence supports IV use in some settings — the study guide specifies regular for IV."},
+{ch:'26',sec:'Sick Day',ty:['sata'],q:"A nurse is teaching parents sick-day rules for their child with T1DM. Which instructions are correct? Select all that apply.",o:["Never skip insulin — doses may need adjustment but insulin is always required","Check blood glucose more frequently when sick","Monitor for DKA signs and check urine ketones","Stop insulin if the child cannot eat","Reduce insulin to half regardless of glucose"],ci:[0,1,2],r:"Per Ch 26: sick-day rules = NEVER skip insulin, check BG more frequently, monitor for DKA / check urine ketones. Stopping insulin when the child cannot eat is the #1 cause of DKA in known T1DM. Counter-regulatory hormones during illness raise insulin needs — doses may need adjustment, but never stopped."},
+
+// --- Quick Reference Integration ---
+{ch:'26',sec:'NCLEX Reference',ty:['ngn'],q:"A child with congenital hypothyroidism is prescribed which medication for life?",o:["Methimazole","Levothyroxine","Propylthiouracil","Octreotide"],ci:[1],r:"Per Ch 26 quick reference: congenital hypothyroidism → levothyroxine (lifelong). Newborn screening identifies most cases; early treatment preserves normal cognitive development."},
+{ch:'26',sec:'NCLEX Reference',ty:['hard','ngn'],q:"A nurse identifies the priority nursing action for diabetes insipidus from the study guide quick-reference table:",o:["Monitor blood glucose","Monitor urine output","Restrict all fluids","Administer insulin"],ci:[1],r:"Per Ch 26 quick reference: diabetes insipidus → DDAVP (desmopressin); priority nursing action = MONITOR URINE OUTPUT. Excessive urine output is the hallmark; effective treatment reduces it. Watch for SIADH from overtreatment."},
+];
+
+// State
+let screen='start';
+let mode='study'; // 'study' | 'exam'
+let selectedChapters=new Set(['24','25','26']);
+let activeQuestions=[];
+let cQ=0;
+let answers={};
+let flagged=new Set();
+let timerSeconds=0;
+let timerInterval=null;
+let timerEnabled=false;
+let immediateFeedback=true;
+
+function chapterCount(ch){return Q.filter(q=>q.ch===ch).length}
+
+function fmtTime(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(h>0)return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+// =============== START SCREEN ===============
+function renderStart(){
+  const a=document.getElementById('app');
+  let chHTML='';
+  ['24','25','26'].forEach(ch=>{
+    const c=CHAPTERS[ch];
+    const isSel=selectedChapters.has(ch);
+    chHTML+=`<div class="chapter-card ${isSel?'selected':''}" data-ch="${ch}" onclick="toggleChapter('${ch}')">
+      <div class="accent-bar" style="background:${c.color}"></div>
+      <div class="chapter-checkbox">${isSel?'✓':''}</div>
+      <div class="chapter-info">
+        <div class="chapter-num" style="color:${c.color}">Chapter ${ch}</div>
+        <div class="chapter-title">${c.name}</div>
+        <div class="chapter-meta">${chapterCount(ch)} questions</div>
+      </div>
+    </div>`;
+  });
+
+  const totalAvail=Array.from(selectedChapters).reduce((s,ch)=>s+chapterCount(ch),0);
+  const studySelected=mode==='study';
+
+  a.innerHTML=`
+    <div class="header">
+      <h1>Kyle Ch 24 / 25 / 26</h1>
+      <p class="source">Pediatric Nursing — Heme/Onc · Immunity · Endocrine</p>
+      <p class="source-detail">Questions tied directly to the Ch 24/25/26 study guide</p>
+    </div>
+    <div class="start-screen">
+      <div class="mode-section">
+        <h2>Choose chapters</h2>
+        <p class="sub">Select one or more chapters to focus your study session.</p>
+        <div class="topic-actions">
+          <button class="btn-text" onclick="selectAll()">All Chapters</button>
+          <button class="btn-text" onclick="clearAll()">Clear</button>
+        </div>
+        <div class="chapter-grid">${chHTML}</div>
+      </div>
+
+      <div class="mode-section">
+        <h2>Choose mode</h2>
+        <p class="sub">Study mode shows rationales as you go. Exam mode times you and saves rationales for the end.</p>
+        <div class="mode-cards">
+          <button class="mode-card ${studySelected?'selected':''}" data-mode="study" onclick="setMode('study')">
+            <div class="mode-card-title"><span class="mode-card-icon">📖</span> Study Mode</div>
+            <div class="mode-card-desc">Instant rationales · No timer · Best for learning</div>
+          </button>
+          <button class="mode-card ${!studySelected?'selected':''}" data-mode="exam" onclick="setMode('exam')">
+            <div class="mode-card-title"><span class="mode-card-icon">⏱</span> Exam Mode</div>
+            <div class="mode-card-desc">75 sec/question · Mark for review · Rationales after submission</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="start-bar">
+        <div class="start-info">
+          ${selectedChapters.size===0?'<strong>No chapters selected</strong>':`<strong>${totalAvail} questions</strong> · ${selectedChapters.size} chapter${selectedChapters.size>1?'s':''} · ${studySelected?'Study':'Exam'} mode`}
+        </div>
+        <button class="btn-start" onclick="beginQuiz()" ${selectedChapters.size===0?'disabled':''}>
+          Start →
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleChapter(ch){
+  if(selectedChapters.has(ch))selectedChapters.delete(ch);
+  else selectedChapters.add(ch);
+  updateStartScreenState();
+}
+function selectAll(){selectedChapters=new Set(['24','25','26']);updateStartScreenState()}
+function clearAll(){selectedChapters=new Set();updateStartScreenState()}
+function setMode(m){mode=m;updateStartScreenState()}
+
+// Updates only the parts of the start screen that change when toggling
+// chapters or modes — no full re-render, no flash.
+function updateStartScreenState(){
+  // Update chapter card visual state
+  document.querySelectorAll('.chapter-card').forEach(card=>{
+    const ch=card.getAttribute('data-ch');
+    if(!ch)return;
+    const isSel=selectedChapters.has(ch);
+    card.classList.toggle('selected',isSel);
+    const cb=card.querySelector('.chapter-checkbox');
+    if(cb)cb.textContent=isSel?'✓':'';
+  });
+  // Update mode card visual state
+  document.querySelectorAll('.mode-card').forEach(card=>{
+    const m=card.getAttribute('data-mode');
+    if(!m)return;
+    card.classList.toggle('selected',m===mode);
+  });
+  // Update bottom info bar text + start button enabled state
+  const totalAvail=Array.from(selectedChapters).reduce((s,ch)=>s+chapterCount(ch),0);
+  const studySelected=mode==='study';
+  const info=document.querySelector('.start-info');
+  if(info){
+    info.innerHTML=selectedChapters.size===0
+      ?'<strong>No chapters selected</strong>'
+      :`<strong>${totalAvail} questions</strong> · ${selectedChapters.size} chapter${selectedChapters.size>1?'s':''} · ${studySelected?'Study':'Exam'} mode`;
+  }
+  const startBtn=document.querySelector('.btn-start');
+  if(startBtn)startBtn.disabled=selectedChapters.size===0;
+}
+
+function beginQuiz(){
+  if(selectedChapters.size===0)return;
+  const pool=Q.filter(q=>selectedChapters.has(q.ch));
+  // shuffle
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  activeQuestions=pool;
+  cQ=0;
+  answers={};
+  flagged=new Set();
+  immediateFeedback=mode==='study';
+  timerEnabled=mode==='exam';
+  timerSeconds=mode==='exam'?activeQuestions.length*75:0;
+  if(timerInterval)clearInterval(timerInterval);
+  if(timerEnabled){
+    timerInterval=setInterval(()=>{
+      timerSeconds--;
+      if(timerSeconds<=0){
+        clearInterval(timerInterval);
+        finishExam(true);
+        return;
+      }
+      updateTimer();
+    },1000);
+  }
+  screen='quiz';
+  R();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateTimer(){
+  const t=document.getElementById('timerEl');
+  if(!t)return;
+  t.textContent='⏱ '+fmtTime(timerSeconds);
+  t.classList.remove('warn','crit');
+  if(timerSeconds<300)t.classList.add('crit');
+  else if(timerSeconds<900)t.classList.add('warn');
+}
+
+// =============== QUIZ ===============
+function R(){
+  const a=document.getElementById('app');
+  if(cQ>=activeQuestions.length){
+    if(mode==='exam')showSubmitConfirm();
+    else{screen='final';RF();return}
+    return;
+  }
+  const q=activeQuestions[cQ];
+  const ans=answers[cQ]||{selected:[],submitted:false};
+  const sa=q.ty.includes('sata'),ca=q.ty.includes('case'),ng=q.ty.includes('ngn'),hd=q.ty.includes('hard'),L='ABCDEFGH';
+  const ch=CHAPTERS[q.ch];
+  const showFeedback=immediateFeedback&&ans.submitted;
+  const isFlagged=flagged.has(cQ);
+
+  let correct=0,answered=0;
+  Object.values(answers).forEach(a=>{if(a.submitted){answered++;if(a.correct)correct++}});
+
+  let h=`<div class="header"><h1>${mode==='exam'?'Exam Mode':'Study Mode'}</h1><p class="source">Kyle Ch 24/25/26 · ${activeQuestions.length} questions</p></div>
+  <div class="quiz-top">
+    ${timerEnabled?`<div class="timer" id="timerEl">⏱ ${fmtTime(timerSeconds)}</div>`:''}
+    <div class="pbc"><div class="pt"><div class="pf" style="width:${(cQ/activeQuestions.length)*100}%"></div></div><div class="ptx">${cQ+1} / ${activeQuestions.length}</div></div>
+    <button class="btn-quit" onclick="confirmQuit()">Exit</button>
+  </div>
+  <div class="sb">
+    ${immediateFeedback?`<div class="sp cp">✓ ${correct}</div><div class="sp ip">✗ ${answered-correct}</div>`:`<div class="sp rp">${answered} answered</div>`}
+    <div class="sp fp">⚑ ${flagged.size}</div>
+  </div>
+  <div class="qc">
+    <div class="qm">
+      <span class="bt" style="color:${ch.color};border-color:${ch.color}40;background:${ch.color}12">Ch ${q.ch} · ${ch.short}</span>
+      ${ca?'<span class="badge badge-case">Case</span>':''}
+      ${sa?'<span class="badge badge-sata">SATA</span>':''}
+      ${ng?'<span class="badge badge-ngn">NGN</span>':''}
+      ${hd?'<span class="badge badge-hard">Hard</span>':''}
+      <button class="btn-flag ${isFlagged?'flagged':''}" onclick="toggleFlag()">⚑ ${isFlagged?'Flagged':'Flag'}</button>
+    </div>`;
+  if(ca&&q.cs)h+=`<div class="csb"><div class="cl">Clinical Scenario</div>${q.cs}</div>`;
+  h+=`<div class="qn">Question ${cQ+1} · ${q.sec}</div><div class="qt">${q.q}</div>`;
+  if(sa)h+='<div class="si">Select all that apply</div>';
+  h+='<div class="opts">';
+  q.o.forEach((o,i)=>{
+    let c='ob';
+    if(showFeedback){
+      c+=' dis';
+      if(q.ci.includes(i))c+=' ca';
+      else if(ans.selected.includes(i))c+=' ia';
+    }else{
+      if(ans.selected.includes(i))c+=' sel';
+    }
+    h+=`<button class="${c}" onclick="T(${i})" ${showFeedback?'disabled':''}><span class="lt">${L[i]}</span><span>${o}</span></button>`;
+  });
+  h+='</div><div class="ar">';
+
+  if(mode==='exam'){
+    h+=`<button class="btn-prev" onclick="prevQ()" ${cQ===0?'disabled':''}>← Previous</button>`;
+    h+=`<button class="bs" onclick="nextQ()">${cQ===activeQuestions.length-1?'Finish Exam →':'Next →'}</button>`;
+  }else{
+    if(!ans.submitted){
+      h+=`<button class="bs" onclick="S()" ${ans.selected.length===0?'disabled':''}>Submit Answer</button>`;
+    }else{
+      h+=`<button class="bs" onclick="nextQ()">${cQ===activeQuestions.length-1?'See Results →':'Next Question →'}</button>`;
+    }
+  }
+  h+='</div>';
+  if(showFeedback)h+=`<div class="rb"><h4>Rationale <span class="src-tag">Ch ${q.ch} · ${q.sec}</span></h4><p>${q.r}</p></div>`;
+  h+='</div>';
+
+  if(mode==='exam'){
+    h+=`<button class="nav-toggle" onclick="openNav()" title="Question navigator">☰</button>`;
+  }
+
+  a.innerHTML=h;
+  if(timerEnabled)updateTimer();
+}
+
+function T(i){
+  const q=activeQuestions[cQ];
+  if(!answers[cQ])answers[cQ]={selected:[],submitted:false};
+  const ans=answers[cQ];
+  if(immediateFeedback&&ans.submitted)return;
+  if(q.ty.includes('sata')){
+    const x=ans.selected.indexOf(i);
+    if(x>-1)ans.selected.splice(x,1);else ans.selected.push(i);
+  }else ans.selected=[i];
+  // Targeted update — no full re-render, no flash
+  updateSelectionOnly();
+}
+
+// Updates only the option button states and the Submit button enabled/disabled state.
+// Avoids full page re-render so there's no flash or animation replay on each tap.
+function updateSelectionOnly(){
+  const q=activeQuestions[cQ];
+  const ans=answers[cQ]||{selected:[],submitted:false};
+  const opts=document.querySelectorAll('.opts .ob');
+  opts.forEach((btn,idx)=>{
+    btn.classList.remove('sel','ca','ia');
+    if(ans.selected.includes(idx))btn.classList.add('sel');
+  });
+  // Update submit button if present (study mode, not yet submitted)
+  const submitBtn=document.querySelector('.ar .bs');
+  if(submitBtn&&submitBtn.textContent.trim().startsWith('Submit')){
+    submitBtn.disabled=ans.selected.length===0;
+  }
+}
+
+function S(){
+  const ans=answers[cQ];
+  if(!ans||!ans.selected.length)return;
+  const q=activeQuestions[cQ];
+  ans.submitted=true;
+  ans.correct=q.ci.slice().sort().toString()===ans.selected.slice().sort().toString();
+  R();
+}
+
+function nextQ(){cQ++;R();window.scrollTo({top:0,behavior:'smooth'})}
+function prevQ(){if(cQ>0){cQ--;R();window.scrollTo({top:0,behavior:'smooth'})}}
+function toggleFlag(){
+  if(flagged.has(cQ))flagged.delete(cQ);else flagged.add(cQ);
+  // Targeted update — only the flag button + counter pill change
+  updateFlagOnly();
+}
+function updateFlagOnly(){
+  const isFlag=flagged.has(cQ);
+  const flagBtn=document.querySelector('.btn-flag');
+  if(flagBtn){
+    flagBtn.classList.toggle('flagged',isFlag);
+    flagBtn.innerHTML=`⚑ ${isFlag?'Flagged':'Flag'}`;
+  }
+  const flagPill=document.querySelector('.sp.fp');
+  if(flagPill)flagPill.innerHTML=`⚑ ${flagged.size}`;
+}
+
+function confirmQuit(){
+  showConfirmModal({
+    title:'Exit Quiz?',
+    message:'Your progress will be lost. Are you sure you want to exit?',
+    confirmLabel:'Exit',
+    onConfirm:()=>{
+      if(timerInterval)clearInterval(timerInterval);
+      screen='start';
+      renderStart();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+}
+
+// Custom in-page confirm modal — reliable on iOS Safari where native confirm()
+// can be silently suppressed in some contexts.
+function showConfirmModal({title,message,confirmLabel,onConfirm}){
+  const modal=document.getElementById('summaryModal');
+  modal.innerHTML=`
+    <div class="summary-content">
+      <h3>${title}</h3>
+      <p style="color:var(--text-dim);font-size:13.5px;line-height:1.6;margin-bottom:18px">${message}</p>
+      <div class="summary-actions">
+        <button class="br-sec" id="confirmCancelBtn">Cancel</button>
+        <button class="br" id="confirmOkBtn" style="background:var(--incorrect);color:white">${confirmLabel}</button>
+      </div>
+    </div>
+  `;
+  modal.classList.add('show');
+  document.getElementById('confirmCancelBtn').onclick=()=>modal.classList.remove('show');
+  document.getElementById('confirmOkBtn').onclick=()=>{
+    modal.classList.remove('show');
+    onConfirm();
+  };
+}
+
+// =============== NAV ===============
+function openNav(){
+  const overlay=document.getElementById('navOverlay');
+  const panel=document.getElementById('navPanel');
+  let cellsHTML='';
+  for(let i=0;i<activeQuestions.length;i++){
+    const ans=answers[i];
+    const isAnswered=ans&&ans.selected.length>0;
+    const isFlag=flagged.has(i);
+    const isCurrent=i===cQ;
+    let cls='nav-cell';
+    if(isCurrent)cls+=' current';
+    else if(isAnswered)cls+=' answered';
+    if(isFlag)cls+=' flagged';
+    cellsHTML+=`<button class="${cls}" onclick="jumpTo(${i})">${i+1}</button>`;
+  }
+  let answered=Object.values(answers).filter(a=>a.selected.length>0).length;
+  let unanswered=activeQuestions.length-answered;
+  panel.innerHTML=`
+    <div class="nav-header"><h3>Question Navigator</h3><button class="nav-close" onclick="closeNav()">✕</button></div>
+    <div class="nav-legend">
+      <div class="nav-legend-item"><div class="nav-legend-box" style="background:var(--accent-glow);border:1.5px solid var(--accent)"></div>Answered</div>
+      <div class="nav-legend-item"><div class="nav-legend-box" style="border:1.5px solid var(--border)"></div>Unanswered</div>
+      <div class="nav-legend-item"><div class="nav-legend-box" style="border:1.5px solid var(--flag);position:relative"><span style="position:absolute;top:-3px;right:-3px;width:6px;height:6px;border-radius:50%;background:var(--flag)"></span></div>Flagged</div>
+    </div>
+    <div class="nav-grid">${cellsHTML}</div>
+    <div class="nav-actions">
+      <button class="btn-text" onclick="closeNav()">Continue</button>
+      <button class="btn-submit-exam" onclick="closeNav();showSubmitConfirm()">Submit Exam</button>
+    </div>
+    <p style="font-size:11.5px;color:var(--text-muted);margin-top:10px;text-align:center">${answered} answered · ${unanswered} unanswered · ${flagged.size} flagged</p>
+  `;
+  overlay.classList.add('show');panel.classList.add('show');
+}
+function closeNav(){document.getElementById('navOverlay').classList.remove('show');document.getElementById('navPanel').classList.remove('show')}
+function jumpTo(i){cQ=i;closeNav();R();window.scrollTo({top:0,behavior:'smooth'})}
+
+// =============== SUBMIT ===============
+function showSubmitConfirm(){
+  const answered=Object.values(answers).filter(a=>a.selected.length>0).length;
+  const unanswered=activeQuestions.length-answered;
+  const modal=document.getElementById('summaryModal');
+  modal.innerHTML=`
+    <div class="summary-content">
+      <h3>Submit Exam?</h3>
+      <div class="summary-stats">
+        <div class="summary-stat"><div class="summary-stat-num" style="color:var(--accent)">${answered}</div><div class="summary-stat-label">Answered</div></div>
+        <div class="summary-stat"><div class="summary-stat-num" style="color:${unanswered>0?'var(--incorrect)':'var(--correct)'}">${unanswered}</div><div class="summary-stat-label">Unanswered</div></div>
+        <div class="summary-stat"><div class="summary-stat-num" style="color:var(--flag)">${flagged.size}</div><div class="summary-stat-label">Flagged</div></div>
+        <div class="summary-stat"><div class="summary-stat-num">${fmtTime(Math.max(0,timerSeconds))}</div><div class="summary-stat-label">Time Left</div></div>
+      </div>
+      ${unanswered>0?`<div class="summary-warn">⚠ ${unanswered} unanswered will be marked incorrect.</div>`:''}
+      <div class="summary-actions">
+        <button class="br-sec" onclick="closeSubmit()">Keep Working</button>
+        <button class="br" onclick="closeSubmit();finishExam(false)">Submit</button>
+      </div>
+    </div>
+  `;
+  modal.classList.add('show');
+}
+function closeSubmit(){document.getElementById('summaryModal').classList.remove('show')}
+
+function finishExam(timeUp){
+  if(timerInterval)clearInterval(timerInterval);
+  for(let i=0;i<activeQuestions.length;i++){
+    const ans=answers[i];
+    if(!ans||!ans.selected.length){
+      answers[i]={selected:[],submitted:true,correct:false,unanswered:true};
+    }else if(!ans.submitted){
+      const q=activeQuestions[i];
+      ans.submitted=true;
+      ans.correct=q.ci.slice().sort().toString()===ans.selected.slice().sort().toString();
+    }
+  }
+  screen='final';
+  RF(timeUp);
+}
+
+// =============== FINAL ===============
+function RF(timeUp){
+  const total=activeQuestions.length;
+  let correct=0,answered=0,unanswered=0;
+  const chS={'24':{c:0,n:0},'25':{c:0,n:0},'26':{c:0,n:0}};
+  for(let i=0;i<total;i++){
+    const ans=answers[i];const q=activeQuestions[i];
+    chS[q.ch].n++;
+    if(ans&&ans.correct){correct++;chS[q.ch].c++}
+    if(ans&&ans.selected.length>0)answered++;else unanswered++;
+  }
+  const p=Math.round((correct/total)*100);
+  let m='';
+  if(p>=85)m="Outstanding mastery of these chapters.";
+  else if(p>=75)m="Strong performance — review missed rationales.";
+  else if(p>=65)m="Solid foundation. Use the breakdown to focus study.";
+  else if(p>=50)m="More work needed — review weak chapters carefully.";
+  else m="Significant gaps. Review every missed question's rationale.";
+
+  let tb='';
+  ['24','25','26'].forEach(ch=>{
+    const s=chS[ch];if(!s.n)return;
+    const c=CHAPTERS[ch];
+    const pc=Math.round((s.c/s.n)*100);
+    tb+=`<div class="tr"><span class="tl"><span class="topic-dot" style="background:${c.color}"></span>Ch ${ch} · ${c.short}</span><span class="ts" style="color:${pc>=70?'var(--correct)':'var(--incorrect)'}">${s.c}/${s.n} · ${pc}%</span></div>`;
+  });
+
+  const elapsed=mode==='exam'?(activeQuestions.length*75-Math.max(0,timerSeconds)):0;
+
+  document.getElementById('app').innerHTML=`
+    <div class="header"><h1>${mode==='exam'?'Exam Complete':'Quiz Complete'}</h1><p class="source">Kyle Ch 24/25/26</p></div>
+    <div class="fs">
+      ${timeUp?'<p style="color:var(--incorrect);margin-bottom:6px;font-weight:600">⏱ Time expired — auto-submitted</p>':''}
+      <div class="fsc">${correct} / ${total}</div>
+      <p>${p}% — ${m}</p>
+      ${mode==='exam'?`<div class="fs-stats">
+        <div class="fs-stat"><div class="fs-stat-num" style="color:var(--correct)">${correct}</div><div class="fs-stat-label">Correct</div></div>
+        <div class="fs-stat"><div class="fs-stat-num" style="color:var(--incorrect)">${total-correct-unanswered}</div><div class="fs-stat-label">Incorrect</div></div>
+        ${unanswered>0?`<div class="fs-stat"><div class="fs-stat-num" style="color:var(--text-muted)">${unanswered}</div><div class="fs-stat-label">Skipped</div></div>`:''}
+        <div class="fs-stat"><div class="fs-stat-num">${fmtTime(elapsed)}</div><div class="fs-stat-label">Time</div></div>
+      </div>`:''}
+      <div class="fs-btns">
+        <button class="br" onclick="startReview()">Review Answers</button>
+        <button class="br-sec" onclick="goToStart()">← Back to Start</button>
+      </div>
+      <div class="tbd"><h3>Chapter Breakdown</h3>${tb}</div>
+    </div>
+  `;
+}
+
+// =============== REVIEW ===============
+let reviewFilter='all';
+function startReview(){reviewFilter='all';renderReviewList()}
+function renderReviewList(){
+  let listHTML='';
+  for(let i=0;i<activeQuestions.length;i++){
+    const q=activeQuestions[i];
+    const ans=answers[i];
+    let status='unanswered',label='Unanswered';
+    if(ans&&ans.selected.length>0){
+      if(ans.correct){status='correct';label='Correct'}
+      else{status='incorrect';label='Incorrect'}
+    }
+    const isFlag=flagged.has(i);
+    if(reviewFilter==='incorrect'&&status==='correct')continue;
+    if(reviewFilter==='flagged'&&!isFlag)continue;
+    listHTML+=`<div class="review-item ${status}" onclick="viewReviewItem(${i})">
+      <div class="review-head">
+        <span class="review-num">Q${i+1} · Ch ${q.ch}${isFlag?' ⚑':''}</span>
+        <span class="review-status ${status}">${label}</span>
+      </div>
+      <div class="review-q">${q.q}</div>
+    </div>`;
+  }
+  document.getElementById('app').innerHTML=`
+    <div class="header"><h1>Review Answers</h1><p class="source">Tap any question for full rationale</p></div>
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+      <button class="btn-text" onclick="setReviewFilter('all')">All</button>
+      <button class="btn-text" onclick="setReviewFilter('incorrect')">Incorrect</button>
+      <button class="btn-text" onclick="setReviewFilter('flagged')">Flagged</button>
+      <button class="btn-text" onclick="goToStart()">← Done</button>
+    </div>
+    <div class="review-list">${listHTML||'<p style="text-align:center;color:var(--text-muted);padding:40px 20px">No questions match this filter.</p>'}</div>
+  `;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setReviewFilter(f){reviewFilter=f;renderReviewList()}
+
+function viewReviewItem(i){
+  const q=activeQuestions[i];
+  const ans=answers[i]||{selected:[],correct:false};
+  const sa=q.ty.includes('sata'),ca=q.ty.includes('case'),ng=q.ty.includes('ngn'),hd=q.ty.includes('hard'),L='ABCDEFGH';
+  const ch=CHAPTERS[q.ch];
+  const isFlag=flagged.has(i);
+  let optsHTML='';
+  q.o.forEach((o,idx)=>{
+    let c='ob dis';
+    const wasSelected=ans.selected.includes(idx);
+    const isCorrect=q.ci.includes(idx);
+    if(isCorrect)c+=' ca';
+    else if(wasSelected)c+=' ia';
+    optsHTML+=`<button class="${c}" disabled><span class="lt">${L[idx]}</span><span>${o}${wasSelected&&!isCorrect?' <span style="color:var(--incorrect);font-size:11px;font-weight:700">(your answer)</span>':''}${isCorrect&&wasSelected?' <span style="color:var(--correct);font-size:11px;font-weight:700">(✓ your answer)</span>':''}${isCorrect&&!wasSelected?' <span style="color:var(--correct);font-size:11px;font-weight:700">(correct)</span>':''}</span></button>`;
+  });
+  let statusBadge='';
+  if(!ans.selected.length)statusBadge='<span class="review-status unanswered">Unanswered</span>';
+  else if(ans.correct)statusBadge='<span class="review-status correct">Correct</span>';
+  else statusBadge='<span class="review-status incorrect">Incorrect</span>';
+
+  document.getElementById('app').innerHTML=`
+    <div class="header"><h1>Question ${i+1}</h1><p class="source">Ch ${q.ch} · ${ch.short} · ${q.sec}</p></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn-text" onclick="renderReviewList()">← All Questions</button>
+      <button class="btn-text" onclick="prevReview(${i})" ${i===0?'disabled':''}>← Prev</button>
+      <button class="btn-text" onclick="nextReview(${i})" ${i===activeQuestions.length-1?'disabled':''}>Next →</button>
+    </div>
+    <div class="qc">
+      <div class="qm">
+        <span class="bt" style="color:${ch.color};border-color:${ch.color}40;background:${ch.color}12">Ch ${q.ch} · ${ch.short}</span>
+        ${ca?'<span class="badge badge-case">Case</span>':''}
+        ${sa?'<span class="badge badge-sata">SATA</span>':''}
+        ${ng?'<span class="badge badge-ngn">NGN</span>':''}
+        ${hd?'<span class="badge badge-hard">Hard</span>':''}
+        ${isFlag?'<span class="badge" style="background:rgba(245,158,11,.1);color:var(--flag);border:1px solid rgba(245,158,11,.3)">⚑</span>':''}
+        <div style="margin-left:auto">${statusBadge}</div>
+      </div>
+      ${ca&&q.cs?`<div class="csb"><div class="cl">Clinical Scenario</div>${q.cs}</div>`:''}
+      <div class="qt">${q.q}</div>
+      ${sa?'<div class="si">Select all that apply</div>':''}
+      <div class="opts">${optsHTML}</div>
+      <div class="rb"><h4>Rationale <span class="src-tag">Ch ${q.ch} · ${q.sec}</span></h4><p>${q.r}</p></div>
+    </div>
+  `;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function prevReview(i){if(i>0)viewReviewItem(i-1)}
+function nextReview(i){if(i<activeQuestions.length-1)viewReviewItem(i+1)}
+
+function goToStart(){
+  if(timerInterval)clearInterval(timerInterval);
+  screen='start';
+  renderStart();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderStart();
+</script>
+</body>
+</html>
